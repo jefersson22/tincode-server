@@ -6,9 +6,13 @@ const { API_VERSION } = require("./constants");
 
 const app = express();
 
-// 1. Configuración de CORS (Debe ir al inicio para aplicar a imágenes estáticas y rutas)
+// 1. Configuración de CORS (Permite localhost y tu frontend desplegado en Vercel)
 app.use(cors({
-  origin: ["http://localhost:3000", "http://localhost:5173"],
+  origin: [
+    "http://localhost:3000", 
+    "http://localhost:5173", 
+    "https://tincode-client-kappa.vercel.app"
+  ],
   credentials: true
 }));
 
