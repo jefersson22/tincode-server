@@ -5,7 +5,7 @@ async function createCourse(req, res) {
     const courseData = { ...req.body };
 
     if (req.file) {
-      courseData.miniature = req.file.filename;
+      courseData.miniature = req.file.path; // URL completa de Cloudinary
     }
 
     // Conversiones explícitas desde FormData (cadenas a tipos numéricos y booleanos)
@@ -61,7 +61,7 @@ async function updateCourse(req, res) {
     const courseData = { ...req.body };
 
     if (req.file) {
-      courseData.miniature = req.file.filename;
+      courseData.miniature = req.file.path; // URL completa de Cloudinary
     }
 
     // Conversión e inserción limpia de precio

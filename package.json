@@ -12,6 +12,7 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "body-parser": "1.20.0",
+    "cloudinary": "^1.41.3",
     "connect": "^3.7.0",
     "cors": "2.8.5",
     "dotenv": "^17.4.2",
@@ -20,6 +21,7 @@
     "mongoose": "6.6.1",
     "mongoose-paginate-v2": "^1.9.5",
     "multer": "^2.2.0",
+    "multer-storage-cloudinary": "^4.0.0",
     "multiparty": "^4.3.0",
     "nodemon": "^3.1.14",
     "semantic-ui-css": "^2.5.0",
