@@ -3,13 +3,16 @@ const Post = require("../models/post");
 // 1. Crear un post
 async function createPost(req, res) {
   try {
+    if (req.user && req.user.role !== "admin" && req.user.role !== "editor") {
+      return res.status(403).json({ msg: "No tienes permisos para realizar esta acción" });
+    }
+
     const postData = req.body;
 
     if (!req.file) {
       return res.status(400).json({ msg: "No se envió ninguna imagen" });
     }
 
-    // Guarda la URL remota completa de Cloudinary si existe, o el nombre local
     postData.miniature = req.file.path || req.file.secure_url || req.file.filename;
     postData.created_at = new Date();
 
@@ -48,10 +51,13 @@ const getPosts = async (req, res) => {
 // 3. Actualizar un post
 const updatePost = async (req, res) => {
   try {
+    if (req.user && req.user.role !== "admin" && req.user.role !== "editor") {
+      return res.status(403).json({ msg: "No tienes permisos para realizar esta acción" });
+    }
+
     const { id } = req.params;
     const postData = req.body;
 
-    // Si se subió un archivo nuevo, actualizamos la miniatura con la URL de Cloudinary
     if (req.file) {
       postData.miniature = req.file.path || req.file.secure_url || req.file.filename;
     }
@@ -81,6 +87,10 @@ const updatePost = async (req, res) => {
 // 4. Eliminar un post
 const deletePost = async (req, res) => {
   try {
+    if (req.user && req.user.role !== "admin" && req.user.role !== "editor") {
+      return res.status(403).json({ msg: "No tienes permisos para realizar esta acción" });
+    }
+
     const { id } = req.params;
     const deletedPost = await Post.findByIdAndDelete(id);
 
@@ -99,7 +109,7 @@ const deletePost = async (req, res) => {
   }
 };
 
-// 5. Obtener un post por su Path único o por ID (Query params)
+// 5. Obtener un post por su Path único o por ID
 const getPostByPath = async (req, res) => {
   try {
     const { path: postPath } = req.query;
@@ -108,10 +118,8 @@ const getPostByPath = async (req, res) => {
       return res.status(400).json({ message: "Debes enviar el parámetro 'path' en la query" });
     }
 
-    // 1º Intentar buscar por el campo personalizable 'path'
     let post = await Post.findOne({ path: postPath });
 
-    // 2º Si no se encuentra por 'path' y la cadena coincide con la estructura de un ObjectId de MongoDB, buscar por ID
     if (!post && postPath.match(/^[0-9a-fA-F]{24}$/)) {
       post = await Post.findById(postPath);
     }
