@@ -2,13 +2,18 @@ const Course = require("../models/course");
 
 async function createCourse(req, res) {
   try {
+    // Validar permisos para admin y editor
+    if (req.user && req.user.role !== "admin" && req.user.role !== "editor") {
+      return res.status(403).send({ msg: "No tienes permisos para realizar esta acción" });
+    }
+
     const courseData = { ...req.body };
 
     if (req.file) {
       courseData.miniature = req.file.path; // URL completa de Cloudinary
     }
 
-    // Conversiones explícitas desde FormData (cadenas a tipos numéricos y booleanos)
+    // Conversiones explícitas desde FormData
     if (courseData.price !== undefined && courseData.price !== "") {
       courseData.price = Number(courseData.price);
     }
@@ -57,6 +62,11 @@ async function getCourses(req, res) {
 
 async function updateCourse(req, res) {
   try {
+    // Validar permisos para admin y editor
+    if (req.user && req.user.role !== "admin" && req.user.role !== "editor") {
+      return res.status(403).send({ msg: "No tienes permisos para realizar esta acción" });
+    }
+
     const { id } = req.params;
     const courseData = { ...req.body };
 
@@ -98,6 +108,11 @@ async function updateCourse(req, res) {
 
 async function deleteCourse(req, res) {
   try {
+    // Validar permisos para admin y editor
+    if (req.user && req.user.role !== "admin" && req.user.role !== "editor") {
+      return res.status(403).send({ msg: "No tienes permisos para realizar esta acción" });
+    }
+
     const { id } = req.params;
     const courseDeleted = await Course.findByIdAndDelete(id);
 
