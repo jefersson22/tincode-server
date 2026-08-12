@@ -10,9 +10,18 @@ function ensureAuth(req, res, next) {
   const token = authHeader.split(" ")[1];
 
   try {
-    const { user_id, role } = jwt.verifyToken(token);
+    const payload = jwt.verifyToken(token);
+    const { user_id, role } = payload;
+
+    // Se asignan ambas formas para compatibilidad con todo el proyecto
     req.user_id = user_id;
     req.user_role = role;
+    req.user = {
+      user_id,
+      role,
+      ...payload,
+    };
+
     next();
   } catch (error) {
     console.log("Error en verifyToken:", error.message);
