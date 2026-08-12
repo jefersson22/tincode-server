@@ -26,7 +26,8 @@ async function createUser(req, res) {
     }
 
     if (req.file) {
-      user.avatar = `avatar/${req.file.filename}`;
+      // Guarda la URL completa de Cloudinary enviada por Multer
+      user.avatar = req.file.path || req.file.secure_url || `avatar/${req.file.filename}`;
     }
 
     const userStored = await user.save();
@@ -61,7 +62,8 @@ async function updateUser(req, res) {
     }
 
     if (req.file) {
-      userData.avatar = `avatar/${req.file.filename}`;
+      // Guarda la URL completa de Cloudinary enviada por Multer
+      userData.avatar = req.file.path || req.file.secure_url || `avatar/${req.file.filename}`;
     }
 
     const userUpdated = await User.findByIdAndUpdate(id, userData, { new: true });
