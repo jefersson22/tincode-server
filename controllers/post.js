@@ -9,7 +9,8 @@ async function createPost(req, res) {
       return res.status(400).json({ msg: "No se envió ninguna imagen" });
     }
 
-    postData.miniature = req.file.filename;
+    // Guarda la URL remota completa de Cloudinary si existe, o el nombre local
+    postData.miniature = req.file.path || req.file.secure_url || req.file.filename;
     postData.created_at = new Date();
 
     const post = new Post(postData);
@@ -50,9 +51,9 @@ const updatePost = async (req, res) => {
     const { id } = req.params;
     const postData = req.body;
 
-    // Si se subió un archivo nuevo, actualizamos la miniatura
+    // Si se subió un archivo nuevo, actualizamos la miniatura con la URL de Cloudinary
     if (req.file) {
-      postData.miniature = req.file.filename;
+      postData.miniature = req.file.path || req.file.secure_url || req.file.filename;
     }
 
     const updatedPost = await Post.findByIdAndUpdate(
