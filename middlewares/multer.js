@@ -2,14 +2,29 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../config/cloudinary");
 
+// Filtro flexible para permitir diversos tipos de imágenes y validar extensión
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-  if (allowedTypes.includes(file.mimetype)) {
+  const allowedMimeTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "image/avif",
+    "image/svg+xml",
+    "image/bmp",
+  ];
+
+  const isExtensionValid = /\.(jpg|jpeg|png|webp|gif|avif|svg|bmp)$/i.test(
+    file.originalname
+  );
+
+  if (allowedMimeTypes.includes(file.mimetype) || isExtensionValid) {
     cb(null, true);
   } else {
     cb(
       new Error(
-        "Formato de archivo no permitido. Solo se aceptan imágenes (jpg, jpeg, png, webp)"
+        "Formato no permitido. Utiliza una imagen válida (JPG, PNG, WEBP, GIF, AVIF, SVG)."
       ),
       false
     );
@@ -22,10 +37,14 @@ function createUploader(folder) {
     cloudinary,
     params: {
       folder: `tincode/${folder}`,
-      allowed_formats: ["jpg", "jpeg", "png", "webp"],
       public_id: (req, file) => {
+        const cleanName = file.originalname
+          .split(".")
+          .slice(0, -1)
+          .join(".")
+          .replace(/[^a-zA-Z0-9]/g, "_");
         const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        return `${file.fieldname}-${uniqueSuffix}`;
+        return `${file.fieldname}-${cleanName}-${uniqueSuffix}`;
       },
     },
   });
@@ -34,7 +53,7 @@ function createUploader(folder) {
     storage,
     fileFilter,
     limits: {
-      fileSize: 5 * 1024 * 1024, // 5 MB máximo
+      fileSize: 10 * 1024 * 1024, // Ampliado a 10 MB máximo
     },
   });
 }
