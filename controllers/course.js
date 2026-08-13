@@ -2,15 +2,19 @@ const Course = require("../models/course");
 
 async function createCourse(req, res) {
   try {
-    // Validar permisos para admin y editor
-    if (req.user && req.user.role !== "admin" && req.user.role !== "editor") {
-      return res.status(403).send({ msg: "No tienes permisos para realizar esta acción" });
+    // Validar permisos para admin y editor (insensible a mayúsculas/minúsculas)
+    if (req.user && req.user.role) {
+      const role = String(req.user.role).toLowerCase();
+      if (role !== "admin" && role !== "editor") {
+        return res.status(403).send({ msg: "No tienes permisos para realizar esta acción" });
+      }
     }
 
     const courseData = { ...req.body };
 
+    // Asignar miniatura soportando múltiples estructuras de Multer/Cloudinary
     if (req.file) {
-      courseData.miniature = req.file.path; // URL completa de Cloudinary
+      courseData.miniature = req.file.path || req.file.secure_url || req.file.url || req.file.filename;
     }
 
     // Conversiones explícitas desde FormData
@@ -62,31 +66,30 @@ async function getCourses(req, res) {
 
 async function updateCourse(req, res) {
   try {
-    // Validar permisos para admin y editor
-    if (req.user && req.user.role !== "admin" && req.user.role !== "editor") {
-      return res.status(403).send({ msg: "No tienes permisos para realizar esta acción" });
+    if (req.user && req.user.role) {
+      const role = String(req.user.role).toLowerCase();
+      if (role !== "admin" && role !== "editor") {
+        return res.status(403).send({ msg: "No tienes permisos para realizar esta acción" });
+      }
     }
 
     const { id } = req.params;
     const courseData = { ...req.body };
 
     if (req.file) {
-      courseData.miniature = req.file.path; // URL completa de Cloudinary
+      courseData.miniature = req.file.path || req.file.secure_url || req.file.url || req.file.filename;
     }
 
-    // Conversión e inserción limpia de precio
     if (courseData.price !== undefined && courseData.price !== "") {
       courseData.price = Number(courseData.price);
     }
 
-    // Conversión de calificación (o eliminación si viene vacía)
     if (courseData.score !== undefined && courseData.score !== "") {
       courseData.score = Number(courseData.score);
     } else if (courseData.score === "") {
       delete courseData.score;
     }
 
-    // Conversión de estado activo
     if (courseData.active !== undefined) {
       courseData.active = courseData.active === "true" || courseData.active === true;
     }
@@ -108,9 +111,11 @@ async function updateCourse(req, res) {
 
 async function deleteCourse(req, res) {
   try {
-    // Validar permisos para admin y editor
-    if (req.user && req.user.role !== "admin" && req.user.role !== "editor") {
-      return res.status(403).send({ msg: "No tienes permisos para realizar esta acción" });
+    if (req.user && req.user.role) {
+      const role = String(req.user.role).toLowerCase();
+      if (role !== "admin" && role !== "editor") {
+        return res.status(403).send({ msg: "No tienes permisos para realizar esta acción" });
+      }
     }
 
     const { id } = req.params;
